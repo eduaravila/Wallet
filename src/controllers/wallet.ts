@@ -12,8 +12,8 @@ export const setCompleteChallenge = async (
   ctx: any
 ) => {
   try {
+    
     let token = ctx.req.headers.token;
-
     let localToken = await JwtAdmin.validateTokenWallet(token);
     let localTokenChallenge = await JwtAdmin.validateTokenWallet(challenge);
     let localTokenCommentary = await JwtAdmin.validateTokenWallet(commentary);
@@ -34,7 +34,7 @@ export const setCompleteChallenge = async (
     await newCommentary.save();
     return Promise.resolve(`${newCommentary._id} succesfully created`);
   } catch (error) {
-    return new ApolloError(error);
+    throw new ApolloError(error);
   }
 };
 
@@ -67,6 +67,6 @@ export const getWallets = async (
 
     return Promise.resolve(result);
   } catch (error) {
-    new ApolloError(error);
+    throw new ApolloError(error);
   }
 };

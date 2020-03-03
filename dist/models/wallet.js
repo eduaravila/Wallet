@@ -44,7 +44,7 @@ const Wallet_schema = new mongoose_1.default.Schema({
             type: Number,
             required: true
         },
-        points: {
+        experience: {
             type: Number,
             required: true
         },

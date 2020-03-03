@@ -51,9 +51,7 @@ export const setNewRarity = async (
     await newRarityDb.save();
     return Promise.resolve(`${newRarityDb._id} succesfully created`);
   } catch (error) {
-    console.log(error);
-
-    new ApolloError(error);
+    throw new ApolloError(error);
   }
 };
 
@@ -103,13 +101,10 @@ export const modifyRarity = async (
       { omitUndefined: true }
     );
     await editRarityDb.save();
-    console.log(editRarityDb);
 
     return Promise.resolve(`${editRarityDb._id} succesfully updated`);
   } catch (error) {
-    console.log(error);
-
-    new ApolloError(error);
+    throw new ApolloError(error);
   }
 };
 
@@ -121,14 +116,11 @@ export const deleteRarity = async ({ id }: any, ctx: any) => {
 
     let tokenData: any = await JwtAdmin.decrypt_data(localToken)();
 
-    let deletedChallenge = await rarity_model.delete(
-      { _id: id },
-      tokenData.userId
-    );
+    await rarity_model.delete({ _id: id }, tokenData.userId);
 
-    return Promise.resolve(`${deletedChallenge._id} succesfully created`);
+    return Promise.resolve(`${id} succesfully deleted`);
   } catch (error) {
-    new ApolloError(error);
+    throw new ApolloError(error);
   }
 };
 
@@ -154,10 +146,12 @@ export const getRarity = async (
             })
             .skip(offset)
             .limit(limit)
+            .lean()
         : await rarity_model
             .find({})
             .skip(offset)
-            .limit(limit);
+            .limit(limit)
+            .lean();
 
     let descripted_result = result.map(i => ({
       ...i,
@@ -168,6 +162,6 @@ export const getRarity = async (
 
     return Promise.resolve(descripted_result);
   } catch (error) {
-    new ApolloError(error);
+    throw new ApolloError(error);
   }
 };

@@ -48,8 +48,7 @@ exports.setNewRarity = ({ coins, level, name, trophys }, ctx) => __awaiter(void 
         return Promise.resolve(`${newRarityDb._id} succesfully created`);
     }
     catch (error) {
-        console.log(error);
-        new apollo_server_express_1.ApolloError(error);
+        throw new apollo_server_express_1.ApolloError(error);
     }
 });
 exports.modifyRarity = ({ coins, level, name, trophys, id }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -80,12 +79,10 @@ exports.modifyRarity = ({ coins, level, name, trophys, id }, ctx) => __awaiter(v
             }
         }, { omitUndefined: true });
         yield editRarityDb.save();
-        console.log(editRarityDb);
         return Promise.resolve(`${editRarityDb._id} succesfully updated`);
     }
     catch (error) {
-        console.log(error);
-        new apollo_server_express_1.ApolloError(error);
+        throw new apollo_server_express_1.ApolloError(error);
     }
 });
 exports.deleteRarity = ({ id }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -93,11 +90,11 @@ exports.deleteRarity = ({ id }, ctx) => __awaiter(void 0, void 0, void 0, functi
         let token = ctx.req.headers.token;
         let localToken = yield jwtAdmin_1.default.validateToken(token);
         let tokenData = yield jwtAdmin_1.default.decrypt_data(localToken)();
-        let deletedChallenge = yield Rarity_1.default.delete({ _id: id }, tokenData.userId);
-        return Promise.resolve(`${deletedChallenge._id} succesfully created`);
+        yield Rarity_1.default.delete({ _id: id }, tokenData.userId);
+        return Promise.resolve(`${id} succesfully deleted`);
     }
     catch (error) {
-        new apollo_server_express_1.ApolloError(error);
+        throw new apollo_server_express_1.ApolloError(error);
     }
 });
 exports.getRarity = ({ page = 0, size = 0, search }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -116,15 +113,17 @@ exports.getRarity = ({ page = 0, size = 0, search }, ctx) => __awaiter(void 0, v
             })
                 .skip(offset)
                 .limit(limit)
+                .lean()
             : yield Rarity_1.default
                 .find({})
                 .skip(offset)
-                .limit(limit);
+                .limit(limit)
+                .lean();
         let descripted_result = result.map(i => (Object.assign(Object.assign({}, i), { coins: crypt_1.decrypt(i.coins), level: crypt_1.decrypt(i.level), trophys: crypt_1.decrypt(i.trophys) })));
         return Promise.resolve(descripted_result);
     }
     catch (error) {
-        new apollo_server_express_1.ApolloError(error);
+        throw new apollo_server_express_1.ApolloError(error);
     }
 });
 //# sourceMappingURL=rarity.js.map

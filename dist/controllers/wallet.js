@@ -38,7 +38,7 @@ exports.setCompleteChallenge = ({ challenge, commentary, media }, ctx) => __awai
         return Promise.resolve(`${newCommentary._id} succesfully created`);
     }
     catch (error) {
-        return new apollo_server_express_1.ApolloError(error);
+        throw new apollo_server_express_1.ApolloError(error);
     }
 });
 exports.getWallets = ({ page = 0, size = 0, search }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -64,7 +64,7 @@ exports.getWallets = ({ page = 0, size = 0, search }, ctx) => __awaiter(void 0, 
         return Promise.resolve(result);
     }
     catch (error) {
-        new apollo_server_express_1.ApolloError(error);
+        throw new apollo_server_express_1.ApolloError(error);
     }
 });
 //# sourceMappingURL=wallet.js.map

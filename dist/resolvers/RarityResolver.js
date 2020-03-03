@@ -61,7 +61,7 @@ let RarityResolver = class RarityResolver {
     }
 };
 __decorate([
-    type_graphql_1.Query(returns => [WalletSchema_1.Wallet], {
+    type_graphql_1.Query(returns => [RaritySchema_1.Rarity], {
         description: "Admin query 🔏"
     }),
     __param(0, type_graphql_1.Arg("findInput", () => WalletSchema_1.findInput)),
@@ -100,7 +100,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], RarityResolver.prototype, "DeleteRarity", null);
 RarityResolver = __decorate([
-    type_graphql_1.Resolver(of => WalletSchema_1.Wallet)
+    type_graphql_1.Resolver(of => RaritySchema_1.Rarity)
 ], RarityResolver);
 exports.RarityResolver = RarityResolver;
 //# sourceMappingURL=RarityResolver.js.map

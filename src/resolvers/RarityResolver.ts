@@ -8,12 +8,7 @@ import {
   Ctx,
   ID
 } from "type-graphql";
-import {
-  SuccessResponse,
-  findInput,
-  completeChallenge,
-  Wallet
-} from "../schema/WalletSchema";
+import { SuccessResponse, findInput } from "../schema/WalletSchema";
 
 import {
   EditRarity,
@@ -28,9 +23,9 @@ import {
   getRarity
 } from "../controllers/rarity";
 
-@Resolver(of => Wallet)
+@Resolver(of => Rarity)
 export class RarityResolver {
-  @Query(returns => [Wallet], {
+  @Query(returns => [Rarity], {
     description: "Admin query 🔏"
   })
   async Raritys(
