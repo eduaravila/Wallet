@@ -12,7 +12,8 @@ import {
   SuccessResponse,
   findInput,
   completeChallenge,
-  Wallet
+  Wallet,
+  SuccessResponseStats
 } from "../schema/WalletSchema";
 
 import { getWallets, setCompleteChallenge } from "../controllers/wallet";
@@ -30,16 +31,12 @@ export class WalletResolver {
     return [...msg];
   }
 
-  @Mutation(returns => SuccessResponse)
+  @Mutation(returns => SuccessResponseStats)
   async CompleteChallenge(
     @Arg("completeChallenge", () => completeChallenge)
     completeChallenge: completeChallenge,
     @Ctx() ctx: any
   ) {
-    let msg = await setCompleteChallenge(completeChallenge, ctx);
-    return {
-      msg,
-      code: "200"
-    };
+    return await setCompleteChallenge(completeChallenge, ctx);
   }
 }

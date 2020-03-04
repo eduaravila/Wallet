@@ -10,6 +10,11 @@ const Banned_schema: Schema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  expireAt: {
+    type: Date,
+    default: Date.now,
+    index: { expires: "1h" } // ? deleted in automatic if the user not continue with the registration process
+  },
   created_at: {
     type: String,
     required: true,

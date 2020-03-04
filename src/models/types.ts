@@ -13,18 +13,17 @@ enum rarityEmun {
 
 export interface WalletModelType extends mongoose.Document, SoftDeleteDocument {
   Coins: {
-    total: number;
+    total: string;
     last_earned: string;
     last_spend: string;
   };
   Trophys: {
-    total: number;
+    total: string;
     last_earned: string;
     last_spend: string;
   };
   Level: {
-    actual: number;
-    points: number;
+    total: string;
     last_earned: string;
     last_spend: string;
   };

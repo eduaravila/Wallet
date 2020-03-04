@@ -7,7 +7,7 @@ import mongoose_delete from "mongoose-delete";
 const Wallet_schema: Schema = new mongoose.Schema({
   Coins: {
     total: {
-      type: Number,
+      type: String,
       required: true
     },
     last_earned: {
@@ -23,7 +23,7 @@ const Wallet_schema: Schema = new mongoose.Schema({
   },
   Trophys: {
     total: {
-      type: Number,
+      type: String,
       required: true
     },
     last_earned: {
@@ -38,12 +38,8 @@ const Wallet_schema: Schema = new mongoose.Schema({
     }
   },
   Level: {
-    actual: {
-      type: Number,
-      required: true
-    },
-    experience: {
-      type: Number,
+    total: {
+      type: String,
       required: true
     },
     last_earned: {

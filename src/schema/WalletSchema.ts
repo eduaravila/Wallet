@@ -14,8 +14,9 @@ import {
   Sanitize
 } from "class-sanitizer";
 import { Type } from "class-transformer";
-
 import mongoose from "mongoose";
+
+import { IsTokenBanned } from "../utils/validators/banned";
 
 @SanitizerConstraint()
 export class toLowerCase implements SanitizerInterface {
@@ -29,8 +30,8 @@ export class toLowerCase implements SanitizerInterface {
 @ObjectType()
 export class User {
   @Directive("@external")
-  @Field()
-  _id: string;
+  @Field(type => ID)
+  _id: mongoose.Types.ObjectId;
 }
 
 @ObjectType()
@@ -67,6 +68,69 @@ export class SuccessResponse {
 
   @Field(type => String)
   code?: string;
+}
+
+@ObjectType()
+export class Points {
+  @Field(type => Int, { nullable: true })
+  total: number;
+
+  @Field(type => Int, { nullable: true })
+  after24: number;
+
+  @Field(type => Int, { nullable: true })
+  rarity: number;
+
+  @Field(type => Int, { nullable: true })
+  completed: number;
+
+  @Field(type => Int, { nullable: true })
+  trophys: number;
+
+  @Field(type => Int, { nullable: true })
+  experience: number;
+
+  @Field(type => String, { nullable: true })
+  grade: string;
+
+  @Field(type => Int, { nullable: true })
+  photos: number;
+
+  @Field(type => Int, { nullable: true })
+  commentary: number;
+}
+
+@ObjectType()
+export class StatsObject {
+  @Field(type => String)
+  Challenge: string;
+
+  @Field(type => ID)
+  Commentary: mongoose.Types.ObjectId;
+
+  @Field(type => Points)
+  Points: Points;
+
+  @Field(type => String)
+  start_date: string;
+
+  @Field(type => String)
+  total_time: string;
+
+  @Field(type => String)
+  end_date: string;
+}
+
+@ObjectType()
+export class SuccessResponseStats {
+  @Field(type => String)
+  msg?: string;
+
+  @Field(type => String)
+  code?: string;
+
+  @Field(type => StatsObject)
+  stats?: StatsObject;
 }
 
 @InputType()
@@ -114,12 +178,15 @@ export class Wallet {
 
 @InputType()
 export class completeChallenge {
+  @IsTokenBanned({ message: "This token is already marked" })
   @Field(type => String, { description: "Token from the commentary service" })
   commentary: string;
 
+  @IsTokenBanned({ message: "This token is already marked" })
   @Field(type => String, { description: "Token from the media service" })
   media: string;
 
+  @IsTokenBanned({ message: "This token is already marked" })
   @Field(type => String, { description: "Token from the challenge service" })
   challenge: string;
 }
