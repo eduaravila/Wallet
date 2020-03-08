@@ -244,3 +244,28 @@ export const getWallets = async (
     throw new ApolloError(error);
   }
 };
+
+export const myWallets = async (ctx: any) => {
+  try {
+    let token = ctx.req.headers.token;
+    let localToken = await Jwt.validateToken(
+      token,
+      ctx.req.body.variables.publicKey
+    );
+    let tokenData: any = await Jwt.decrypt_data(localToken)();
+
+    let result = await walletModel.findOne({ User: tokenData.userId }).lean();
+
+    let descripted_result = {
+      ...result,
+      Coins: { ...result.Coins, total: decrypt(result.Coins.total) },
+      Level: { ...result.Level, total: decrypt(result.Level.total) },
+      Trophys: { ...result.Trophys, total: decrypt(result.Trophys.total) }
+    };
+    console.log(descripted_result);
+
+    return Promise.resolve(descripted_result);
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};

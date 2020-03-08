@@ -150,8 +150,8 @@ export class findInput {
 @Directive(`@key(fields:"_id")`)
 @ObjectType()
 export class Wallet {
-  @Field(type => String, { nullable: false })
-  _id: string;
+  @Field(type => ID)
+  _id: mongoose.Types.ObjectId;
 
   @Field(type => Coins, { nullable: true })
   Coins: Coins;

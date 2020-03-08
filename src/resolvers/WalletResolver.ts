@@ -16,7 +16,11 @@ import {
   SuccessResponseStats
 } from "../schema/WalletSchema";
 
-import { getWallets, setCompleteChallenge } from "../controllers/wallet";
+import {
+  getWallets,
+  setCompleteChallenge,
+  myWallets
+} from "../controllers/wallet";
 
 @Resolver(of => Wallet)
 export class WalletResolver {
@@ -29,6 +33,13 @@ export class WalletResolver {
   ) {
     let msg = await getWallets(findInput, ctx);
     return [...msg];
+  }
+
+  @Query(returns => Wallet, {
+    description: "Admin query 🔏"
+  })
+  async MyWallet(@Ctx() ctx: any) {
+    return await myWallets(ctx);
   }
 
   @Mutation(returns => SuccessResponseStats)
