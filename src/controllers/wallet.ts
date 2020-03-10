@@ -7,6 +7,7 @@ import { findInput, completeChallenge, Coins } from "../schema/WalletSchema";
 import Jwt from "../utils/jwt";
 import JwtAdmin from "../utils/jwtAdmin";
 import jwtTicket from "../utils/jwtTicket";
+import jwtArena from "../utils/jwtArena";
 import rarity_model from "../models/Rarity";
 import jwt from "jsonwebtoken";
 import { decrypt, encrypt } from "../utils/crypt";
@@ -256,15 +257,54 @@ export const myWallets = async (ctx: any) => {
 
     let result = await walletModel.findOne({ User: tokenData.userId }).lean();
 
-    let descripted_result = {
+    let decrypted_result = {
       ...result,
       Coins: { ...result.Coins, total: decrypt(result.Coins.total) },
       Level: { ...result.Level, total: decrypt(result.Level.total) },
       Trophys: { ...result.Trophys, total: decrypt(result.Trophys.total) }
     };
-    console.log(descripted_result);
+    console.log(decrypted_result);
 
-    return Promise.resolve(descripted_result);
+    return Promise.resolve(decrypted_result);
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+// ? returns your max arena based on your points
+export const myArena = async (arenas: string, ctx: any) => {
+  try {
+    let token = ctx.req.headers.token;
+    let localToken = await Jwt.validateToken(
+      token,
+      ctx.req.body.variables.publicKey
+    );
+    let tokenData: any = await Jwt.decrypt_data(localToken)();
+
+    let arenaToken = await jwtArena.validateToken(arenas);
+    let tokenArenaData: any = await Jwt.decrypt_data(arenaToken)();
+
+    let result = await walletModel.findOne({ User: tokenData.userId }).lean();
+
+    let decrypted_result = {
+      ...result,
+      Coins: { ...result.Coins, total: decrypt(result.Coins.total) },
+      Level: { ...result.Level, total: decrypt(result.Level.total) },
+      Trophys: { ...result.Trophys, total: decrypt(result.Trophys.total) }
+    };
+
+    let filteredArenas = JSON.parse(tokenArenaData.arenas).filter(
+      (i: any) => i.minPoints < decrypted_result.Level.total && { ...i }
+    );
+
+    let currentArena = filteredArenas.reduce((a: any, b: any) =>
+      a.minPoints > b.minPoints ? a : b
+    );
+
+    return Promise.resolve({
+      availableArenas: [...filteredArenas],
+      currentArena
+    });
   } catch (error) {
     throw new ApolloError(error);
   }

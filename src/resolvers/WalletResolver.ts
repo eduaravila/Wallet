@@ -13,13 +13,15 @@ import {
   findInput,
   completeChallenge,
   Wallet,
-  SuccessResponseStats
+  SuccessResponseStats,
+  CurrentArena
 } from "../schema/WalletSchema";
 
 import {
   getWallets,
   setCompleteChallenge,
-  myWallets
+  myWallets,
+  myArena
 } from "../controllers/wallet";
 
 @Resolver(of => Wallet)
@@ -40,6 +42,11 @@ export class WalletResolver {
   })
   async MyWallet(@Ctx() ctx: any) {
     return await myWallets(ctx);
+  }
+
+  @Query(returns => CurrentArena)
+  async MyArena(@Arg("arenas", () => String) arenas: string, @Ctx() ctx: any) {
+    return await myArena(arenas, ctx);
   }
 
   @Mutation(returns => SuccessResponseStats)

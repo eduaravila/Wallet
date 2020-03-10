@@ -71,6 +71,24 @@ export class SuccessResponse {
 }
 
 @ObjectType()
+export class AvailableArenas {
+  @Field(type => String)
+  name?: string;
+
+  @Field(type => Int)
+  minPoints?: number;
+}
+
+@ObjectType()
+export class CurrentArena {
+  @Field(type => [AvailableArenas])
+  availableArenas?: [AvailableArenas];
+
+  @Field(type => AvailableArenas)
+  currentArena?: AvailableArenas;
+}
+
+@ObjectType()
 export class Points {
   @Field(type => Int, { nullable: true })
   total: number;
