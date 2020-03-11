@@ -11,6 +11,19 @@ enum rarityEmun {
   Legendary = "legendary"
 }
 
+type errorOrBool = boolean | never;
+
+enum gendreEmun {
+  Famele = "famele",
+  Male = "male",
+  Nobinary = "nobinary"
+}
+
+enum badgeTypeEnum {
+  Type = "type",
+  Ratiry = "rarity",
+  Zone = "zone"
+}
 export interface WalletModelType extends mongoose.Document, SoftDeleteDocument {
   Coins: {
     total: string;
@@ -63,3 +76,16 @@ export interface RarityModelType extends mongoose.Document, SoftDeleteDocument {
 
 export interface RarityModelStaticsType
   extends SoftDeleteModel<RarityModelType> {}
+
+export interface BadgeModelType extends mongoose.Document, SoftDeleteDocument {
+  type: badgeTypeEnum;
+  name: string;
+  image: string;
+  created_at: string;
+  updated_at: string;
+  created_by: mongoose.Types.ObjectId;
+  updated_by: mongoose.Types.ObjectId;
+}
+
+export interface BadgeModelStaticsType
+  extends SoftDeleteModel<BadgeModelType> {}

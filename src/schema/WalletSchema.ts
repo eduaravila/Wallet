@@ -72,8 +72,8 @@ export class SuccessResponse {
 
 @ObjectType()
 export class AvailableArenas {
-  @Field(type => String)
-  name?: string;
+  @Field(type => ID)
+  id?: mongoose.Types.ObjectId;
 
   @Field(type => Int)
   minPoints?: number;
