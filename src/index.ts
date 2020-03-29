@@ -1,3 +1,7 @@
+//!!
+//!! Eduardo avila 2020 21
+//!!
+
 import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -10,7 +14,7 @@ import { buildFederatedSchema } from "./helpers/buildFederatedSchema";
 import connectDB from "./DB/index";
 import { WalletResolver } from "./resolvers/WalletResolver";
 import { RarityResolver } from "./resolvers/RarityResolver";
-import { User } from "./schema/WalletSchema";
+import { User, Arena } from "./schema/WalletSchema";
 import { Badge, resolveBadgeReference } from "./schema/BadgesSchema";
 import { BadgeResolver } from "./resolvers/BadgeResolver";
 
@@ -33,7 +37,7 @@ if (cluster.isWorker) {
         schema: await buildFederatedSchema(
           {
             resolvers: [WalletResolver, RarityResolver, BadgeResolver],
-            orphanedTypes: [User, Badge]
+            orphanedTypes: [User, Badge, Arena]
           },
           { Badge: { __resolveReference: resolveBadgeReference } }
         ),

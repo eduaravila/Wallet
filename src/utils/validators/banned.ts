@@ -15,18 +15,22 @@ import { ApolloError } from "apollo-server-express";
 export class tokenIsBannedConstraint implements ValidatorConstraintInterface {
   async validate(token: any, args: ValidationArguments) {
     try {
-      await jwtTicket.validateToken(token);
+      if (!!token) {
+        await jwtTicket.validateToken(token);
 
-      let idToken = (await jwt.decode(token, {
-        complete: true
-      })) as any;
+        let idToken = (await jwt.decode(token, {
+          complete: true
+        })) as any;
 
-      let isBanned = await bannedModel.findOne({ token: idToken.header.kid });
-      if (isBanned) {
-        return Promise.reject(false);
+        let isBanned = await bannedModel.findOne({ token: idToken.header.kid });
+        if (isBanned) {
+          return Promise.reject(false);
+        }
+
+        return Promise.resolve(true);
+      } else {
+        return Promise.resolve(true);
       }
-
-      return Promise.resolve(true);
     } catch (error) {
       throw new ApolloError(error);
     }

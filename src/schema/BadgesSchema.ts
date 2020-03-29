@@ -60,6 +60,9 @@ export class Badge {
   @Field(type => String)
   image: string;
 
+  @Field(type => String)
+  color: string;
+
   @Field(type => String, { nullable: true })
   created_at: string;
 
@@ -82,6 +85,9 @@ export class NewBadge {
   name: string;
 
   @Field(type => String)
+  color: string;
+
+  @Field(type => String)
   image: string;
 }
 
@@ -95,6 +101,9 @@ export class EditBadge {
 
   @Field(type => String, { nullable: true })
   image: string;
+
+  @Field(type => String, { nullable: true })
+  color: string;
 }
 
 @InputType({ description: "Modify an existing badge" })

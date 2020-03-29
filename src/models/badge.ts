@@ -19,6 +19,11 @@ const Badge_schema: Schema = new mongoose.Schema({
     type: String,
     required: true
   },
+  color: {
+    type: String,
+    required: true,
+    default: "#EC2863"
+  },
   created_by: {
     type: mongoose.Types.ObjectId,
     required: true

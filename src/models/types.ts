@@ -80,6 +80,7 @@ export interface RarityModelStaticsType
 export interface BadgeModelType extends mongoose.Document, SoftDeleteDocument {
   type: badgeTypeEnum;
   name: string;
+  color: string;
   image: string;
   created_at: string;
   updated_at: string;

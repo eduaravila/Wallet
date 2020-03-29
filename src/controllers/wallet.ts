@@ -40,6 +40,18 @@ const get_total = <T extends number>(items: T[], multipli_items: T[]) => {
   return multipli_items.reduce((a, b) => a * b, sum);
 };
 
+// ? get the challenge range
+const get_grade = (less24: boolean, commentary: number, photo: number) => {
+  let grades = ["D+", "C+", "B+", "A+"];
+  let grade = 0;
+  if (less24) {
+    grade++;
+  }
+  [commentary, photo].map(i => (i > 1 ? grade++ : null));
+  console.log(grade);
+  return grades[grade];
+};
+
 export const setCompleteChallenge = async (
   { challenge, commentary, media }: completeChallenge,
   ctx: any
@@ -57,17 +69,19 @@ export const setCompleteChallenge = async (
       localTokenChallenge
     )();
 
-    let localTokenCommentary = await jwtTicket.validateToken(commentary);
-    let decryptlocalTokenCommentary: any = await jwtTicket.decrypt_data(
-      localTokenCommentary
-    )();
-    console.log(decryptlocalTokenCommentary);
+    let localTokenCommentary =
+      commentary && (await jwtTicket.validateToken(commentary));
+    let decryptlocalTokenCommentary: any = !!commentary
+      ? await jwtTicket.decrypt_data(localTokenCommentary)()
+      : { multiplier: 1 };
+    console.log("commentary", decryptlocalTokenCommentary);
 
-    let localTokenMedia = await jwtTicket.validateToken(media);
-    let decryptlocalTokenMedia: any = await jwtTicket.decrypt_data(
-      localTokenMedia
-    )();
-    console.log(decryptlocalTokenMedia);
+    let localTokenMedia = media && (await jwtTicket.validateToken(media));
+    let decryptlocalTokenMedia: any = media
+      ? await jwtTicket.decrypt_data(localTokenMedia)()
+      : { multiplier: 1 };
+
+    console.log("media", decryptlocalTokenMedia);
     // ? the challenge points
     let after_24: number = is_less_than_24(
       decryptlocalTokenChallenge.created_at,
@@ -99,8 +113,8 @@ export const setCompleteChallenge = async (
     let rarityTrophys: number = +decripted_rariry.trophys;
 
     // ! commentary & photos points
-    let commentaryMultiplier = decryptlocalTokenCommentary.multiplier;
-    let mediaMultiplier = decryptlocalTokenMedia.multiplier;
+    let commentaryMultiplier = +decryptlocalTokenCommentary.multiplier;
+    let mediaMultiplier = +decryptlocalTokenMedia.multiplier;
 
     let totalCoins = get_total(
       [rarityCoins, after_24, challenge_coins],
@@ -117,6 +131,8 @@ export const setCompleteChallenge = async (
     let currentTrophys = currentWallet
       ? decrypt(currentWallet.Trophys.total)
       : 0;
+
+    console.log(currentCoins, currentLevel, currentTrophys);
 
     currentCoins = +currentCoins + totalCoins;
     currentTrophys = +currentTrophys + rarityTrophys;
@@ -167,19 +183,24 @@ export const setCompleteChallenge = async (
     });
     await bannedTokenChallenge.save();
 
-    let bannedTokenMedia = new banned_model({
-      token: idMediaToken.header.kid
-    });
-    await bannedTokenMedia.save();
+    if (media) {
+      let bannedTokenMedia = new banned_model({
+        token: idMediaToken.header.kid
+      });
+      await bannedTokenMedia.save();
+    }
 
-    let bannedTokenCommentary = new banned_model({
-      token: idCommentaryToken.header.kid
-    });
-    await bannedTokenCommentary.save();
+    if (commentary) {
+      let bannedTokenCommentary = new banned_model({
+        token: idCommentaryToken.header.kid
+      });
+      await bannedTokenCommentary.save();
+    }
+    let grade = get_grade(!!after_24, mediaMultiplier, commentaryMultiplier);
 
     let stats = {
       Challenge: decryptlocalTokenChallenge.Challenge,
-      Commentary: decryptlocalTokenCommentary.userId,
+      Commentary: commentary ? decryptlocalTokenCommentary._id : "",
       Points: {
         total: totalCoins,
         after24: after_24,
@@ -187,7 +208,7 @@ export const setCompleteChallenge = async (
         completed: challenge_coins,
         trophys: rarityTrophys,
         experience: rarityLevel,
-        grade: "A+",
+        grade,
         photos: mediaMultiplier,
         commentary: commentaryMultiplier
       },
@@ -202,6 +223,8 @@ export const setCompleteChallenge = async (
       stats
     });
   } catch (error) {
+    console.log(error);
+
     throw new ApolloError(error);
   }
 };
@@ -221,10 +244,7 @@ export const getWallets = async (
       search.length > 0
         ? await walletModel
             .find({
-              $or: [
-                { User: { $regex: ".*" + search + ".*" } },
-                { _id: { $regex: ".*" + search + ".*" } }
-              ]
+              $or: [{ _id: { $regex: ".*" + search + ".*" } }]
             })
             .skip(offset)
             .limit(limit)
@@ -233,7 +253,7 @@ export const getWallets = async (
             .skip(offset)
             .limit(limit);
 
-    let descripted_result = result.map(i => ({
+    let descripted_result = result.map((i: any) => ({
       ...i,
       Coins: { ...i.Coins, total: decrypt(i.Coins.total) },
       Level: { ...i.Level, total: decrypt(i.Level.total) },
@@ -256,6 +276,51 @@ export const myWallets = async (ctx: any) => {
     let tokenData: any = await Jwt.decrypt_data(localToken)();
 
     let result = await walletModel.findOne({ User: tokenData.userId }).lean();
+
+    if (!result) {
+      let newWallet = await walletModel
+        .findOneAndUpdate(
+          { User: tokenData.userId },
+          {
+            User: tokenData.userId,
+            Coins: {
+              total: encrypt("0".toString()),
+              last_earned: moment().format("YYYY-MM-DD/HH:mm:ZZ")
+            },
+            Trophys: {
+              total: encrypt("0".toString()),
+              last_earned: moment().format("YYYY-MM-DD/HH:mm:ZZ")
+            },
+            Level: {
+              total: encrypt("0".toString()),
+              last_earned: moment().format("YYYY-MM-DD/HH:mm:ZZ")
+            },
+            created_by: tokenData.userId,
+            updated_by: tokenData.userId,
+            created_at: moment().format("YYYY-MM-DD/HH:mm:ZZ"),
+            updated_at: moment().format("YYYY-MM-DD/HH:mm:ZZ")
+          },
+          {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true
+          }
+        )
+        .lean();
+
+      let decrypted_result = {
+        ...newWallet,
+        Coins: { ...newWallet.Coins, total: "0" },
+        Level: { ...newWallet.Level, total: "0" },
+        Trophys: {
+          ...newWallet.Trophys,
+          total: "0"
+        }
+      };
+      console.log(decrypted_result);
+      return Promise.resolve(decrypted_result);
+    }
+    console.log(result);
 
     let decrypted_result = {
       ...result,
@@ -294,18 +359,20 @@ export const myArena = async (arenas: string, ctx: any) => {
     };
 
     let filteredArenas = JSON.parse(tokenArenaData.arenas).filter(
-      (i: any) => i.minPoints < decrypted_result.Level.total && { ...i }
+      (i: any) => i.minPoints <= decrypted_result.Level.total
     );
 
     let currentArena = filteredArenas.reduce((a: any, b: any) =>
-      a.minPoints > b.minPoints ? a : b
+      a.minPoints >= b.minPoints ? a : b
     );
 
     return Promise.resolve({
-      availableArenas: [...filteredArenas],
-      currentArena
+      availableArenas: [...filteredArenas.map((i: any) => ({ _id: i.id }))],
+      currentArena: { _id: currentArena.id }
     });
   } catch (error) {
+    console.log(error);
+
     throw new ApolloError(error);
   }
 };

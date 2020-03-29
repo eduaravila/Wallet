@@ -34,8 +34,29 @@ export class User {
   _id: mongoose.Types.ObjectId;
 }
 
+@Directive("@extends")
+@Directive(`@key(fields: "_id")`)
+@ObjectType()
+export class Arena {
+  @Directive("@external")
+  @Field(type => ID)
+  _id: mongoose.Types.ObjectId;
+}
+
 @ObjectType()
 export class Coins {
+  @Field(type => String)
+  total: string;
+
+  @Field(type => String)
+  last_earned: string;
+
+  @Field(type => String)
+  last_spend: string;
+}
+
+@ObjectType()
+export class Trophys {
   @Field(type => String)
   total: string;
 
@@ -71,21 +92,14 @@ export class SuccessResponse {
 }
 
 @ObjectType()
-export class AvailableArenas {
-  @Field(type => ID)
-  id?: mongoose.Types.ObjectId;
-
-  @Field(type => Int)
-  minPoints?: number;
-}
-
-@ObjectType()
 export class CurrentArena {
-  @Field(type => [AvailableArenas])
-  availableArenas?: [AvailableArenas];
+  @Type(() => Arena)
+  @Field(type => [Arena])
+  availableArenas?: [Arena];
 
-  @Field(type => AvailableArenas)
-  currentArena?: AvailableArenas;
+  @Type(() => Arena)
+  @Field(type => Arena)
+  currentArena?: Arena;
 }
 
 @ObjectType()
@@ -177,6 +191,9 @@ export class Wallet {
   @Field(type => Level, { nullable: true })
   Level: Level;
 
+  @Field(type => Trophys, { nullable: true })
+  Trophys: Trophys;
+
   @Type(() => User)
   @Field()
   User: User;
@@ -197,14 +214,22 @@ export class Wallet {
 @InputType()
 export class completeChallenge {
   @IsTokenBanned({ message: "This token is already marked" })
-  @Field(type => String, { description: "Token from the commentary service" })
+  @Field(type => String, {
+    description: "Token from the commentary service",
+    nullable: true
+  })
   commentary: string;
 
   @IsTokenBanned({ message: "This token is already marked" })
-  @Field(type => String, { description: "Token from the media service" })
+  @Field(type => String, {
+    description: "Token from the media service",
+    nullable: true
+  })
   media: string;
 
   @IsTokenBanned({ message: "This token is already marked" })
-  @Field(type => String, { description: "Token from the challenge service" })
+  @Field(type => String, {
+    description: "Token from the challenge service"
+  })
   challenge: string;
 }
